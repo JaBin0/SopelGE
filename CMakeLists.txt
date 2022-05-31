@@ -5,7 +5,11 @@ project(SopelGE
         LANGUAGES CXX)
 
 add_library(Sopel STATIC 
-            engine/core/Engine.cc)
+            engine/core/Engine.cc
+            engine/graphic/OGL.cc
+            engine/assets/IAssetsManager.cc
+            engine/assets/AssimpAssetsManager.cc
+            )
 
 target_compile_features(Sopel PRIVATE cxx_std_20 )
 
@@ -17,7 +21,7 @@ target_link_directories(Sopel PUBLIC
 target_link_libraries (Sopel LINK_PUBLIC assimp)
 
 target_include_directories(Sopel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(Sopel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/include)
+target_include_directories(Sopel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../Externals/includes)
 
 
 #arget_include_directories(WalterMelon PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/FooModule)
