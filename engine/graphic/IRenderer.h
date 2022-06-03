@@ -12,4 +12,7 @@ public:
 
     /** Register model within Graphic system */
     virtual ErrorCodes::value registerModel(AssetId id, const Model& model) = 0;
+
+    /** !!!TO REMOVE!!! Temporary function to develop furter functionality */
+    virtual void draw() = 0;
 };};

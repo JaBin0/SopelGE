@@ -1,8 +1,9 @@
 #pragma once
 
+namespace Sopel {
 struct ErrorCodes {
     enum value {
-        NO_ERROR = 0,
+        _NO_ERROR = 0,
         READING_ASSET_FILE_FAILED,
     };
-};
+};};

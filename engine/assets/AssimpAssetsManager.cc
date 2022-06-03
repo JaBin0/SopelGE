@@ -29,7 +29,7 @@ AssimpAssetsManager::~AssimpAssetsManager()
 AssetId AssimpAssetsManager::registerModel(const std::string path, ErrorCodes::value& errCode)
 {   
     std::cout << "Loading model <" << path.data() << "> ... ";
-    errCode = ErrorCodes::NO_ERROR;
+    errCode = ErrorCodes::_NO_ERROR;
     // Check if model registered alraedy and find new free id if not.
     AssetId id = INVALID_ASSETID;
     AssetId index = 0;
