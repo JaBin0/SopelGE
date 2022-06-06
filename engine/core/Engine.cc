@@ -34,6 +34,7 @@ Engine::Engine()
 
     // Renderer need to be crated after glfw context is created
     m_iRenderer = std::make_shared<OGL>((GLADloadproc)glfwGetProcAddress);
+    m_iRenderer->registerGraphicPipline(SYSTEM_GRAPHIC_PIPLINES::DEFAULT, "assets//shaders//system//default.vert", "assets//shaders//system//default.frag");
     
     
 

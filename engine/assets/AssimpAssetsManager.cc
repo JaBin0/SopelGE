@@ -31,22 +31,27 @@ AssetId AssimpAssetsManager::registerModel(const std::string path, ErrorCodes::v
     std::cout << "Loading model <" << path.data() << "> ... ";
     errCode = ErrorCodes::_NO_ERROR;
     // Check if model registered alraedy and find new free id if not.
-    AssetId id = INVALID_ASSETID;
-    AssetId index = 0;
+    AssetId id = 0;
+    bool newIdFound = false;
 
-    for(auto record : m_assetsMap) {
-        if(INVALID_ASSETID == id && record.first != index) {
-            id = index;
+    for(auto asset : m_assetsMap) {
+        if(0 == path.compare(asset.second)) {
+                // Both path are the same, return assign ID 
+                std::cout << "ALREADY LOADED" << std::endl;
+                return asset.first;
         }
-        index++;
+        if(!newIdFound) {
 
-        if(0 == path.compare(record.second)) {
-            // Both path are the same, return assign ID 
-            id = record.first;
-            std::cout << "ALREADY LOADED" << std::endl;
-            return id;
+            if(asset.first != id) {
+                newIdFound = true;
+            }
+            else {
+                ++id;
+            }
         }
     }
+
+    m_assetsMap.insert({id, path});
 
     const aiScene *scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs); 
     if(nullptr == scene) {
@@ -66,7 +71,8 @@ AssetId AssimpAssetsManager::registerModel(const std::string path, ErrorCodes::v
     mesh.vertices.reserve(originMesh->mNumFaces * VERTEXPERFACE);
     mesh.normals.reserve(originMesh->mNumFaces * VERTEXPERFACE);
     mesh.textureCoords.reserve(originMesh->mNumFaces * VERTEXPERFACE);
-
+    mesh.verticesNumber = originMesh->mNumFaces * VERTEXPERFACE;
+    mesh.vertexSize = 8;
     for(uint16_t faceId = 0; faceId < originMesh->mNumFaces; ++faceId) 
     {
         aiFace face = originMesh->mFaces[faceId];
@@ -80,11 +86,11 @@ AssetId AssimpAssetsManager::registerModel(const std::string path, ErrorCodes::v
             mesh.textureCoords.push_back({vertexTextCoord.x, vertexTextCoord.y});
         }
     }
-
+    
     Model model;
     model.mesh = mesh;
     m_models.insert({id, model});
-    std::cout << "Success" << std::endl;
+    std::cout << "Success id[" << id << "]" << std::endl;
     return id;
 
     // for(uint16_t vertexId = 0; vertexId < originMesh->mNumVertices; ++vertexId) {

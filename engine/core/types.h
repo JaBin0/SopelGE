@@ -20,5 +20,9 @@ using uint64 = uint64_t;
 using AssetId = uint32;
 #define INVALID_ASSETID 0xFFFFFFFF
 
+using vecf = std::vector<float>;
 using vvec3f = std::vector<glm::vec3>;
 using vvec2f = std::vector<glm::vec2>;
+
+using GPId = uint16;
+

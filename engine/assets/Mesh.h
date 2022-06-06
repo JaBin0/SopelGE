@@ -8,4 +8,7 @@ struct Mesh {
     vvec3f vertices;
     vvec3f normals;
     vvec2f textureCoords; 
+
+    uint32 verticesNumber;
+    uint32 vertexSize;
 };};
