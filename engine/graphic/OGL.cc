@@ -19,6 +19,10 @@ OGL::OGL(GLADloadproc procAddress)
     if(!success) {
         std::cout << "OpenGL function poiters could not be retrive by GLAD" << std::endl;        
     }
+
+    m_perspective = glm::perspective(glm::radians(45.0f), 1280.0f/720.0f, 0.1f, 100.0f);
+    m_camera = glm::lookAt(glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0));
+
     glClearColor(0.2f, 0.25f, 0.33f, 1.0f);
 }
 
@@ -144,23 +148,26 @@ ErrorCodes::value OGL::registerGraphicPipline(GPId id, std::string vertexShaderS
     return ErrorCodes::_NO_ERROR;
 }
 
+void OGL::startFrame()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(m_graphicPiplines[0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_graphicPiplines[0], "projection"), 1, GL_FALSE, glm::value_ptr(m_perspective));
+    glUniformMatrix4fv(glGetUniformLocation(m_graphicPiplines[0], "view"), 1, GL_FALSE, glm::value_ptr(m_camera));
+}
+
 void OGL::draw() 
 {
-    glm::mat4 perspective =  glm::perspective(glm::radians(45.0f), 
-                static_cast<float>(1280.0f)/static_cast<float>(720.0f),
-                0.1f, 100.0f);
-
     glm::mat4 modelMat = glm::mat4(1.0);
     modelMat = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -10.0f));
-
-    glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0));
 
     glClearColor(0.2f, 0.25f, 0.33f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(m_graphicPiplines[0]);
-    glUniformMatrix4fv(glGetUniformLocation(m_graphicPiplines[0], "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-    glUniformMatrix4fv(glGetUniformLocation(m_graphicPiplines[0], "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(m_graphicPiplines[0], "projection"), 1, GL_FALSE, glm::value_ptr(m_perspective));
+    glUniformMatrix4fv(glGetUniformLocation(m_graphicPiplines[0], "view"), 1, GL_FALSE, glm::value_ptr(m_camera));
     glUniformMatrix4fv(glGetUniformLocation(m_graphicPiplines[0], "model"), 1, GL_FALSE, glm::value_ptr(modelMat));
 
     struct GModel model = m_modelMap.at(m_testId);
@@ -168,5 +175,14 @@ void OGL::draw()
 
     glDrawArrays(GL_TRIANGLES, 0, model.verticesNumber);
 }
+
+void OGL::draw(const GObject gobject) 
+{
+    glUniformMatrix4fv(glGetUniformLocation(m_graphicPiplines[0], "model"), 1, GL_FALSE, glm::value_ptr(gobject.transformation));
+    struct GModel model = m_modelMap.at(gobject.assetId);
+    glBindVertexArray(model.vao);
+    glDrawArrays(GL_TRIANGLES, 0, model.verticesNumber);
+}
+
 };
 

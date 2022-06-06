@@ -9,6 +9,7 @@
 #include <engine/errors/ErrorCodes.h>
 #include <engine/graphic/IRenderer.h>
 #include <engine/assets/IAssetsManager.h>
+#include <engine/core/SystemComponents.h>
 
 // Forward declaration
 class GLFWwindow;
@@ -32,6 +33,7 @@ public:
     void start();
 
 protected:
+
     /** Indicate that the engine was initialize successfully*/
     bool m_initialized;
 
@@ -43,4 +45,7 @@ protected:
 
     /** Instance of window */
     GLFWwindow* m_window;
+
+    /**  */
+    std::vector<GObject> m_objects;
 };};

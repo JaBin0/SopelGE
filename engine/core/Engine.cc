@@ -10,7 +10,7 @@
 
 namespace Sopel {
 // Static variables
-const float Engine::version = 0.001f;
+const float Engine::version = 0.0023f;
 
 Engine::Engine() 
     : m_initialized{false}
@@ -85,8 +85,10 @@ void Engine::start()
     
     while(!glfwWindowShouldClose(m_window)) {
         glfwPollEvents();
-        m_iRenderer->draw();
-
+        m_iRenderer->startFrame();
+        for (auto gobject : m_objects) {
+            m_iRenderer->draw(gobject);
+        }
         glfwSwapBuffers(m_window);
     }
 

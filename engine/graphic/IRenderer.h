@@ -5,6 +5,8 @@
 #include <engine/core/types.h>
 #include <engine/assets/Model.h>
 #include <engine/errors/ErrorCodes.h>
+// TO REMOVE !!!!
+#include <engine/core/SystemComponents.h>
 
 namespace Sopel {
 class IRenderer {
@@ -19,5 +21,8 @@ public:
     virtual ErrorCodes::value registerGraphicPipline(GPId id, std::string vertexShaderSrcFile, std::string fragmentShaderSrcFile) = 0;
 
     /** !!!TO REMOVE!!! Temporary function to develop furter functionality */
+    virtual void startFrame() = 0;
     virtual void draw() = 0;
+    virtual void draw(const GObject gobject) = 0;
+
 };};
