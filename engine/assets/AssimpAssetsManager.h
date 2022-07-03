@@ -18,6 +18,8 @@ public:
 
     AssetId registerModel(const std::string path, ErrorCodes::value& errCode) override;
 
+    AssetId registerTexture(const std::string textruePath, ErrorCodes::value& errCode) override;
+
 protected:
     /** Main assimp asset importer */
     Assimp::Importer m_importer;

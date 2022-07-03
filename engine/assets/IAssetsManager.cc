@@ -12,5 +12,13 @@ const Model IAssetsManager::getModel(const AssetId id)
     return Model();
 }
 
+const Sopel::Texture& IAssetsManager::getTexture(const AssetId id)
+{
+    if(m_textures.count(id) != 0) {
+        return m_textures.at(id);
+    }
+    return Sopel::Texture();
+}
+
 };
 

@@ -27,7 +27,10 @@ public:
     static const float version;
 
     /** Register model within engine system and return assign id */
-    AssetId registerModel(std::string path);
+    AssetId registerModel(std::string asset);
+
+    /** Register texture within engine system and return assign id */
+    TextureId registerTexture(std::string path);
 
     /** Start main loop of the game */
     void start();

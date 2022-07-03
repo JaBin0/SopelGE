@@ -3,10 +3,12 @@
 // Own headers
 #include <engine/assets/AssimpAssetsManager.h>
 #include <engine/assets/Mesh.h>
-#include <engine/assets/Model.h>
+#include <engine/assets/SpModel.h>
 // External 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <Image/stb_image.h>
 
 namespace Sopel {
 
@@ -17,7 +19,7 @@ AssimpAssetsManager::AssimpAssetsManager()
     : IAssetsManager()
     , m_importer()
 {
-    
+    stbi_set_flip_vertically_on_load(true);
 
 }
 
@@ -53,7 +55,7 @@ AssetId AssimpAssetsManager::registerModel(const std::string path, ErrorCodes::v
 
     m_assetsMap.insert({id, path});
 
-    const aiScene *scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs); 
+    const aiScene *scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace); 
     if(nullptr == scene) {
         std::cout << "FAILED" << std::endl << "Reading file failed. Possibly such file does not exist.";
         errCode = ErrorCodes::READING_ASSET_FILE_FAILED;
@@ -71,8 +73,10 @@ AssetId AssimpAssetsManager::registerModel(const std::string path, ErrorCodes::v
     mesh.vertices.reserve(originMesh->mNumFaces * VERTEXPERFACE);
     mesh.normals.reserve(originMesh->mNumFaces * VERTEXPERFACE);
     mesh.textureCoords.reserve(originMesh->mNumFaces * VERTEXPERFACE);
+    mesh.tangents.reserve(originMesh->mNumFaces * VERTEXPERFACE);
     mesh.verticesNumber = originMesh->mNumFaces * VERTEXPERFACE;
-    mesh.vertexSize = 8;
+    
+    mesh.vertexSize = 11;
     for(uint16_t faceId = 0; faceId < originMesh->mNumFaces; ++faceId) 
     {
         aiFace face = originMesh->mFaces[faceId];
@@ -84,9 +88,11 @@ AssetId AssimpAssetsManager::registerModel(const std::string path, ErrorCodes::v
             mesh.normals.push_back({vertexNormal.x, vertexNormal.y, vertexNormal.z});
             aiVector3D vertexTextCoord = originMesh->mTextureCoords[0][vertexId];
             mesh.textureCoords.push_back({vertexTextCoord.x, vertexTextCoord.y});
+            aiVector3D tangent = originMesh->mTangents[vertexId];
+            mesh.tangents.push_back({tangent.x, tangent.y, tangent.z});
         }
     }
-    
+ 
     Model model;
     model.mesh = mesh;
     m_models.insert({id, model});
@@ -101,6 +107,51 @@ AssetId AssimpAssetsManager::registerModel(const std::string path, ErrorCodes::v
     //     std::cout << "[" << originMesh->mNormals[vertexId].x << ", " << originMesh->mNormals[vertexId].y << ", " << originMesh->mNormals[vertexId].z << "]      " ;
     //     std::cout << "[" << originMesh->mTextureCoords[0][vertexId].x << ", " << originMesh->mTextureCoords[0][vertexId].y << ", " << originMesh->mTextureCoords[0][vertexId].z << "]"  << std::endl;
     // }
+}
+
+TextureId AssimpAssetsManager::registerTexture(const std::string textruePath, ErrorCodes::value& errCode) 
+{
+    errCode = ErrorCodes::_NO_ERROR;
+    AssetId id = 0;
+    bool newIdFound = false;
+
+    for(auto asset : m_assetsMap) {
+        if(0 == textruePath.compare(asset.second)) {
+                // Both path are the same, return assign ID 
+                std::cout << "ALREADY LOADED" << std::endl;
+                return asset.first;
+        }
+        if(!newIdFound) 
+        {
+            if(asset.first != id) {
+                newIdFound = true;
+            }
+            else {
+                ++id;
+            }
+        }
+    }
+
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load(textruePath.data(), &width, &height, &nrChannels, 0);
+    if(nullptr == data) {
+        errCode = ErrorCodes::TEXTURE_FILE_NOT_LOADED;
+        return INVALID_ASSETID;
+    }
+
+    m_assetsMap.insert({id, textruePath});
+
+    m_textures.insert({id, {0, height, nrChannels, {}}});
+    Sopel::Texture& texture = m_textures.at(id);
+
+    uint32 dataSize = nrChannels * width * height;
+    texture.width = width;
+    texture.data.reserve(dataSize);
+    texture.data.insert(texture.data.end(), data, &data[dataSize]);
+
+    STBI_FREE(data);
+
+    return id;
 }
 
 
