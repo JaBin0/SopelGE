@@ -42,7 +42,7 @@ Engine::Engine()
     m_iRenderer->registerFont(SYSTEM_FONT, "assets/fonts/arial.ttf");
     m_iRenderer->activateFont(SYSTEM_FONT);
     
-
+    std::cout << "Test submodules" << std::endl;
 
     // glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     
