@@ -5,7 +5,7 @@
 // External
 #include <assimp/Importer.hpp>
 
-namespace Sopel {
+namespace SopelGE {
 
 /** Asset manager based on the assimp library */
 class AssimpAssetsManager : public IAssetsManager {
@@ -19,6 +19,8 @@ public:
     AssetId registerModel(const std::string path, ErrorCodes::value& errCode) override;
 
     AssetId registerTexture(const std::string textruePath, ErrorCodes::value& errCode) override;
+
+    void registerScene(const std::string scenePath) override;
 
 protected:
     /** Main assimp asset importer */

@@ -2,7 +2,7 @@
 // Own headers
 #include <engine/core/types.h>
 
-namespace Sopel {
+namespace SopelGE {
 struct Mesh {
     /**  */
     vvec3f vertices;

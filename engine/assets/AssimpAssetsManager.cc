@@ -10,7 +10,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <Image/stb_image.h>
 
-namespace Sopel {
+namespace SopelGE {
 
 // Defines
 #define VERTEXPERFACE 3
@@ -142,7 +142,7 @@ TextureId AssimpAssetsManager::registerTexture(const std::string textruePath, Er
     m_assetsMap.insert({id, textruePath});
 
     m_textures.insert({id, {0, height, nrChannels, {}}});
-    Sopel::Texture& texture = m_textures.at(id);
+    Texture& texture = m_textures.at(id);
 
     uint32 dataSize = nrChannels * width * height;
     texture.width = width;
@@ -154,6 +154,15 @@ TextureId AssimpAssetsManager::registerTexture(const std::string textruePath, Er
     return id;
 }
 
-
+void AssimpAssetsManager::registerScene(const std::string scenePath) 
+{
+    const aiScene *scene = m_importer.ReadFile(scenePath, aiProcess_Triangulate);
+    if(scene) {
+        std::cout << "File found" << std::endl;
+    }
+    else {
+        std::cout << "File not found" << std::endl;
+    }
+}
 
 };

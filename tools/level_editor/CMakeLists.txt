@@ -5,9 +5,27 @@ project(SGELevelEditorApp
         LANGUAGES CXX)
 
 add_executable(SGELevelEditor
-               src/SGELevelEditor.cpp
+        src/SGELevelEditor.cpp
 )
 
 target_compile_features(SGELevelEditor PRIVATE cxx_std_20)
+target_link_libraries(SGELevelEditor LINK_PUBLIC SGEWindowOGL SGERendererOGL)      
 
-target_include_directories(SGELevelEditor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(SGELevelEditor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+#target_include_directories(SGELevelEditor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../../engine/window)
+#target_include_directories(SGELevelEditor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../../engine/graphic)
+
+
+
+
+
+
+
+
+
+
+# #target_include_directories(SGELevelEditor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../../engine/window)
+# 
+
+

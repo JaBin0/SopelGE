@@ -1,54 +1,35 @@
 #pragma once
-// System headers
 #include <string>
 #include <memory>
-#include <iostream>
 
-// Own headers
-#include <engine/core/types.h>
-#include <engine/errors/ErrorCodes.h>
-#include <engine/graphic/IRenderer.h>
-#include <engine/assets/IAssetsManager.h>
-#include <engine/core/SystemComponents.h>
+#include <common/BasicTypes.h>
+#include <WindowOGL.h>
+#include <OGL.h>
 
-// Forward declaration
-class GLFWwindow;
 
 namespace Sopel {
-// Defines
-#define VERSION 0.002
 
 class Engine {
-public:
-    Engine();
-    virtual ~Engine();
+public: 
+    /*! \brief Constructors && Destructor */
+    Engine() = delete;
+    Engine(uint16 width, uint16 height, std::string name);
 
-    /** Contains current version of the Game engine. */
-    static const float version;
+    /*! \brief Print engine version */
+    virtual std::string printVersion();
 
-    /** Register model within engine system and return assign id */
-    AssetId registerModel(std::string asset);
-
-    /** Register texture within engine system and return assign id */
-    TextureId registerTexture(std::string path);
-
-    /** Start main loop of the game */
-    void start();
+    /*! \brief Start main loop of the engine */
+    int start();
 
 protected:
+    /*! \brief Engine renderer handle */
+    std::unique_ptr<Sopel::IRenderer> _renderer;
 
-    /** Indicate that the engine was initialize successfully*/
-    bool m_initialized;
+    /*! \brief Engine window handle*/
+    std::unique_ptr<Sopel::Window> _window;
+    
+public:
+    static std::string VERSION;
 
-    /** Instance of the assets manager */
-    std::shared_ptr<IAssetsManager> m_iAssetsMgr;
-
-    /** Instance of the renderer */
-    std::shared_ptr<IRenderer> m_iRenderer;
-
-    /** Instance of window */
-    GLFWwindow* m_window;
-
-    /**  */
-    std::vector<GObject> m_objects;
-};};
+};
+};
