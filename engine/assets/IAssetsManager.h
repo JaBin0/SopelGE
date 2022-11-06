@@ -10,7 +10,7 @@
 #include <engine/errors/ErrorCodes.h>
 
 
-namespace Sopel {
+namespace SopelGE {
 
 class IAssetsManager {
 public:
@@ -31,13 +31,15 @@ public:
      */
     virtual AssetId registerTexture(const std::string textruePath, ErrorCodes::value& errCode) = 0;
 
-    
+    /** This method will register new scene in the asset system. Scene is a complex element describing environment which contain multiple elements.
+     */
+    virtual void registerScene(const std::string scenePath) = 0;
 
     /** Return model assgin to the given id. If no model is assign to id empty object will be returned */
     const Model getModel(const AssetId id);
 
     /** Return model assgin to the given id. If no model is assign to id empty object will be returned */
-    const Sopel::Texture& getTexture(const AssetId id);
+    const Texture& getTexture(const AssetId id);
  
 protected:
     /** Map combining id given by the asset manager with the physical file path which identify particular resource.
@@ -49,5 +51,5 @@ protected:
     std::unordered_map<AssetId, Model> m_models;
 
     /** Texture map which combine asset id with particular texture */
-    std::unordered_map<AssetId, Sopel::Texture> m_textures;
+    std::unordered_map<AssetId, Texture> m_textures;
 };};

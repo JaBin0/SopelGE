@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Sopel {
+namespace SopelGE {
 struct ErrorCodes {
     enum value {
         _NO_ERROR = 0,

@@ -2,7 +2,7 @@
 // Own headers
 #include <engine/assets/Mesh.h>
 
-namespace Sopel {
+namespace SopelGE {
 class Model {
 public:
     Mesh mesh;
