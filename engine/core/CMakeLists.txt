@@ -7,12 +7,14 @@ project(EnginePrj
 
 add_library(SGEEngine STATIC
     Engine.cpp
+    entities/Entity.cpp
+    entities/IEntitiesManager.cpp
 )
 
 target_compile_features(SGEEngine PUBLIC cxx_std_20)
 target_link_libraries(SGEEngine LINK_PUBLIC SGEWindowOGL SGERendererOGL)
 
-target_include_directories(SGEEngine PUBLIC ${ROOT_DIR}/engine)
+target_include_directories(SGEEngine PUBLIC ${ROOT_DIR})
 target_include_directories(SGEEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 
