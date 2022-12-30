@@ -9,9 +9,11 @@
 #include <engine/common/Types.h>
 
 #include <engine/core/Utilities.h>
+
 #include <engine/core/components/IComponentsManager.h>
 #include <engine/core/entities/IEntitiesManager.h>
 #include <engine/core/systems/ISystemsManager.h>
+#include <engine/assets/IAssetsManager.h>
 
 
 #include <WindowOGL.h>
@@ -25,7 +27,8 @@ namespace Sopel {
 class Engine 
     : public IEntitiesManager
     , public IComponentsManager
-    , public ISystemsManager 
+    , public ISystemsManager
+    , public IAssetsManager 
 {
 public: 
     /*! \brief Constructors && Destructor */

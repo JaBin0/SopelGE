@@ -17,7 +17,7 @@ project(SopelGE
 
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-
+add_subdirectory(engine/assets)
 add_subdirectory(engine/graphic)
 add_subdirectory(engine/window)
 add_subdirectory(engine/core)
