@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+
 #include <engine/core/entities/Entity.h>
 #include <engine/core/components/Component.h>
 
@@ -9,7 +11,7 @@ public:
      * After adding new component it is possible that the whole storage can be moved therefore
      * consider previous pointers to the components of this type invalidated. Moving storage 
      * will also update pointers stored by entity. 
-     *    TODO! Instead of returning raw pointer, return wraper/handler which will be always up to date 
+     *    TODO! Instead of returning raw pointer, return wrapper/handler which will be always up to date 
      */
     template <class T>
     T* addComponent(Entity& entity);
@@ -78,6 +80,7 @@ T* IComponentsManager::getComponent(Entity& entity) {
 
 template <class T>
 void IComponentsManager::printCSM() {
+    std::cout << "Print CSM <" << T::ID << ">: " << std::endl;
     auto& csmData = _components.at(T::ID).data;
     for(uint8 value : csmData) {
         std::cout << std::dec << static_cast<uint16_t>(value) << ", ";

@@ -15,14 +15,17 @@ public:
     /*! \brief Find next unique entity id */
     const EID findUniqueId();
 
-    /*! \brief Print all entities currently registred within the engine */
+    /*! \brief */
+    EntitiesRef getMatch(EKEY entityKey);
+
+    /*! \brief Print all entities currently registered within the engine */
     void printEntities() const;
 
 private:
     /*! \brief Stores all entities register within the system */
     Entities _entities;
 
-    /*! \brief Last id assign to the newly added entitiy. Used as a start value for finding unique id and help spred ids across whole possible values */
+    /*! \brief Last id assign to the newly added entity. Used as a start value for finding unique id and help spread ids across whole possible values */
     EID _lastId;
 };
 };

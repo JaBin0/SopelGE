@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <bitset>
+#include <functional>
 
 #include <engine/common/BasicTypes.h>
 #include <engine/core/components/Component.h>
@@ -15,6 +16,8 @@ class Entity;
 
 
 using Entities = std::vector<Entity>;
+
+using EntitiesRef = std::vector<std::reference_wrapper<Entity>>;
 
 /*! \brief Define key type */ 
 using EKEY = std::bitset<ENTITY_KEY_SIZE>;
@@ -51,13 +54,13 @@ public:
     template <class T>
     T* getComponent();
 
-    /* Temporary sollution user should not be able to change handler to the component within enity */
+    /* Temporary solution user should not be able to change handler to the component within entity */
     template <class T>
     uint64 getComponentPos() const;
 
-    /* Temporary sollution user should not be able to change handler to the component within enity */
+    /* Temporary solution user should not be able to change handler to the component within entity */
     template <class T>
-    void updateComponnentAddr(BasicComponent* newAddress);
+    void updateComponentAddr(BasicComponent* newAddress);
 
 public: // Getters
     /*! \brief Return entity id */    
@@ -105,7 +108,7 @@ uint64 Entity::getComponentPos() const {
 }
 
 template <class T>
-void Entity::updateComponnentAddr(BasicComponent* newAddress)
+void Entity::updateComponentAddr(BasicComponent* newAddress)
 {
     if(_linkedComponents.count(T::ID) != 0) {
         _linkedComponents.at(T::ID).first = newAddress;

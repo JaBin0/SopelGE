@@ -14,7 +14,7 @@ Entity::Entity(EID id, std::string name)
 
 bool Entity::checkKey(EKEY key)
 {
-    return ((key & _key) != 0);
+    return ((key & _key) == key);
 }
 
 void Entity::linkComponent(uint16 cmpClassId, BasicComponent* cmp, uint64 cmpPlaceInCsm)

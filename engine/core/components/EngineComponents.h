@@ -1,7 +1,8 @@
 #pragma once
 #include <engine/core/components/Component.h>
 
-// All data necesry for visual aspect like model, material etc.
+
+// All data necessary for visual aspect like model, material etc.
 _COMPONENT(CRender) {
     uint16 x;
     uint16 y;

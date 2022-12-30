@@ -6,10 +6,13 @@
 #include <vector>
 #include <unordered_map>
 
-#include <engine/common/BasicTypes.h>
+#include <engine/common/Types.h>
 
+#include <engine/core/Utilities.h>
 #include <engine/core/components/IComponentsManager.h>
 #include <engine/core/entities/IEntitiesManager.h>
+#include <engine/core/systems/ISystemsManager.h>
+
 
 #include <WindowOGL.h>
 #include <OGL.h>
@@ -17,9 +20,12 @@
 
 namespace Sopel {
 
+#define DISCARD_FIRST_N_FRAMES 10u
+
 class Engine 
     : public IEntitiesManager
-    , public IComponentsManager 
+    , public IComponentsManager
+    , public ISystemsManager 
 {
 public: 
     /*! \brief Constructors && Destructor */
@@ -37,9 +43,13 @@ public:
 
     /*! \brief Print engine version */
     virtual std::string printVersion();
-    
+
     /*! \brief Start main loop of the engine */
     int start();
+
+private:
+    /*! \brief */
+    struct Utilities _utilities;
 
 protected:
     /*! \brief Engine renderer handle */
@@ -47,6 +57,12 @@ protected:
 
     /*! \brief Engine window handle*/
     std::unique_ptr<Sopel::Window> _window;
+
+private:
+    // /*! \brief */
+    // struct Utilities _utilities;
+    // /*! \brief */
+    // Systems _systems;
 
 public:
     static std::string VERSION;

@@ -46,6 +46,16 @@ void IEntitiesManager::printEntities() const {
     }
 }
 
+EntitiesRef IEntitiesManager::getMatch(EKEY entityKey) {
+    EntitiesRef matchedEntity;
+    for(Entity& entity : _entities) {
+        if(entity.checkKey(entityKey)) {
+            matchedEntity.push_back(entity);
+        }
+    }
+   return matchedEntity;
+}
+
 };
 
 

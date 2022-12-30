@@ -9,6 +9,8 @@ add_library(SGEEngine STATIC
     Engine.cpp
     entities/Entity.cpp
     entities/IEntitiesManager.cpp
+    systems/ISystemsManager.cpp
+    systems/SystemRenderer.cpp
 )
 
 target_compile_features(SGEEngine PUBLIC cxx_std_20)
