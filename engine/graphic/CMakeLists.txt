@@ -10,8 +10,11 @@ add_library(SGERendererOGL STATIC
         ../../../Externals/glfw/3.3.8/src/glad_gl.c)
 
 target_include_directories(SGERendererOGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(SGERendererOGL PUBLIC ${ROOT_DIR})
 target_include_directories(SGERendererOGL PUBLIC ${ROOT_DIR}/../Externals/glfw/3.3.8/include)
+target_include_directories(SGERendererOGL PUBLIC ${ROOT_DIR}/../Externals/glm/0.9.8.0/include)
 
+target_link_libraries(SGERendererOGL LINK_PUBLIC opengl32)
 set(SGERendererOGL_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 #target_include_directories(SGERendererOGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../../Externals/glfw/3.3.8/include)

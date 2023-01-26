@@ -1,4 +1,4 @@
-// #pragma once
+#pragma once
 // // Own headers
 // #include <engine/core/types.h>
 
@@ -13,3 +13,14 @@
 //     uint32 verticesNumber;
 //     uint32 vertexSize;
 // };};
+
+#include <engine/common/BasicTypes.h>
+
+namespace Sopel {
+
+class Mesh {
+public:
+    vecf vertices;
+};
+
+};

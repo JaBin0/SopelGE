@@ -7,6 +7,8 @@
 #include <core/systems/EngineSystem.h>
 #include <core/components/EngineComponents.h>
 
+#include <engine/assets/Model.h>
+
 namespace Sopel {
 
 std::string Engine::VERSION = "0.011";
@@ -14,10 +16,10 @@ std::string Engine::VERSION = "0.011";
 Engine::Engine(uint16 width, uint16 height, std::string name)
     : IEntitiesManager ()
     , IComponentsManager ()
-    , _utilities {this, this, this}
 {
     _window = Window::CreateWindow(width, height, name);
-    _renderer = std::make_unique<OGL>(_window->getProcAddress());
+    _renderer = std::make_shared<OGL>(_window->getProcAddress());
+    _utilities = {this, this, this, _renderer.get()};
 }
 
 void Engine::init()
@@ -42,7 +44,11 @@ int Engine::start()
 
     while(!_window->shouldClose()) 
     {
-        std::cout << "============= Start =============" << std::endl;
+
+        //std::cout << "============= Start =============" << std::endl;
+        _window->pollEvents();
+        _renderer->startFrame(0);
+
         // Calculate frame time informations
         frameTime = std::chrono::steady_clock::now();
         frameDeltaTime = std::chrono::duration<float, std::milli>(frameTime - lastFrameTime).count();
@@ -54,36 +60,19 @@ int Engine::start()
         if((frameDeltaTime > maxFrameTime) && (!first10Frame)) {maxFrameTime = frameDeltaTime;}
         if((frameDeltaTime < minFrameTime) && (!first10Frame)) {minFrameTime = frameDeltaTime;}
 
-        _renderer->startFrame(0);
-        _window->update();
+        float time = std::chrono::time_point_cast<std::chrono::milliseconds>(frameTime).time_since_epoch().count() / 1000.f;
+        _renderer->setTime(time);
+        
         
         for(auto system : getSystems()) {
             if(system.enable) {
                 system.fun(getMatch(system.key), frameDeltaTime, _utilities);
             }
         }
-
-        if(frameCount == DISCARD_FIRST_N_FRAMES) {first10Frame = false;};
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        std::cout << "============== End ==============" << std::endl;
-        if(frameCount > 7) { 
-            auto system = getSystem(ENGINE_SYSTEMS::RENDER_SYSTEM);
-            if(nullptr != system) {
-                system->enable = true;
-            }
-            else {
-                std::cout << "Error getting ENGINE_SYSTEMS::RENDER_SYSTEM " << std::endl;
-            }
-        } 
-        if(frameCount > 10) { 
-            auto system = getSystem(ENGINE_SYSTEMS::RENDER_SYSTEM);
-            if(nullptr != system) {
-                system->enable = false;
-            }
-            else {
-                std::cout << "Error getting ENGINE_SYSTEMS::RENDER_SYSTEM " << std::endl;
-            }
-        } 
+        _window->update();
+        
+        //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+       // std::cout << "============== End ==============" << std::endl;
     }
 
     double avgFrameTime = gameTime / frameCount;
@@ -93,6 +82,21 @@ int Engine::start()
               << "  max time: " << maxFrameTime << std::endl
               << std::endl;
     return 0;
+}
+
+AssetID Engine::registerModel(const std::string filePath) {
+    std::cout << "Registering model <" << filePath.data() << "> .... ";
+    auto [id, model] = loadModelAsset(filePath);
+    if(id == INVALID_ASSET_ID) {
+        return INVALID_ASSET_ID;
+    }
+
+    if(!_renderer->registerMesh(id, model->mesh)) {
+        return INVALID_ASSET_ID;
+    }
+
+    std::cout << "Success" << std::endl;
+    return id;  
 }
 
 std::string Engine::printVersion()

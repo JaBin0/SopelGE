@@ -1,17 +1,26 @@
 #pragma once
 #include <string>
+#include <unordered_map>
+#include <tuple>
 
 #include <engine/common/BasicTypes.h>
+#include <engine/assets/Model.h>
 
 
 namespace Sopel {
 
-using AssetID = uint16;
-#define INVALID_ASSET_ID 0xFFFF
+enum class AssetType {
+    Model = 1,
+
+};
 
 class IAssetsManager {
 protected:  
-    AssetID registerModel(const std::string path, AssetID id = INVALID_ASSET_ID);
+    std::tuple<AssetID, Model*> loadModelAsset(const std::string path);
+
+private:
+    std::unordered_map<AssetID, std::pair<std::string, AssetType>> _assets;
+    std::unordered_map<AssetID, Model> _models;
 
 };
 };

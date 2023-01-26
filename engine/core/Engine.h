@@ -16,6 +16,7 @@
 #include <engine/assets/IAssetsManager.h>
 
 
+
 #include <WindowOGL.h>
 #include <OGL.h>
 
@@ -41,27 +42,35 @@ public:
     /*! \brief User defined initialize method for the game elements */
     virtual void gameInit() = 0;
 
-    /*! \brief User defined initialize method for the engine elements like registreing systems, render pipline etc. */
+    /*! \brief User defined initialize method for the engine elements like registering systems, render pipeline etc. */
     virtual void userEngineInit() = 0;
+
+    AssetID registerModel(const std::string filePath);
+
+    /**! \brief */
+    void registerGraphicPipeline(const GPID id, const std::string vertexShader, const std::string fragmentShader);
 
     /*! \brief Print engine version */
     virtual std::string printVersion();
+
+
 
     /*! \brief Start main loop of the engine */
     int start();
 
 private:
-    /*! \brief */
-    struct Utilities _utilities;
 
 protected:
     /*! \brief Engine renderer handle */
-    std::unique_ptr<Sopel::IRenderer> _renderer;
+    std::shared_ptr<Sopel::IRenderer> _renderer;
 
     /*! \brief Engine window handle*/
     std::unique_ptr<Sopel::Window> _window;
 
 private:
+
+    /*! \brief */
+    struct Utilities _utilities;
     // /*! \brief */
     // struct Utilities _utilities;
     // /*! \brief */

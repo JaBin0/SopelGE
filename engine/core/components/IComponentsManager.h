@@ -28,7 +28,7 @@ public:
 
 private:
     /*! \brief Default size of the single component storage */
-    static const uint32 DEFAULT_COMPONENT_STORAGE_SIZE = 16u;
+    static const uint32 DEFAULT_COMPONENT_STORAGE_SIZE = 64u;
 
     /*! \brief Stores all components register within the system */
     Components _components;
@@ -51,7 +51,7 @@ T* IComponentsManager::addComponent(Entity& entity)
     
     auto& csm = _components.at(T::ID);
     if(csm.next >= csm.data.size()) {
-        csm.data.resize(csm.data.size() + (DEFAULT_COMPONENT_STORAGE_SIZE / 2));
+        csm.data.resize(csm.data.size() + (DEFAULT_COMPONENT_STORAGE_SIZE));
         // for (auto& ent : _entities) {
         // //     if(ent.checkKey(1 << T::ID)) {
         // //         uint64 pos = ent.getComponentPos<T>();

@@ -12,10 +12,14 @@ Window::Window(uint16 width, uint16 height, std::string windowName)
     {
         return;
     }
+ 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     _window = glfwCreateWindow(width, height, windowName.data(), NULL, NULL);
     if(!_window) {
         glfwTerminate();
+        std::cout << "SopelGE::Window::ERROR: Window could not be created correctly" << std::endl;  
         return;
     }
 
@@ -53,6 +57,9 @@ bool Window::shouldClose()
 void Window::update()
 {
     glfwSwapBuffers(_window);
+}
+
+void Window::pollEvents() {
     glfwPollEvents();
 }
 

@@ -21,6 +21,7 @@ public:
 
     bool shouldClose();
     void update();
+    void pollEvents();
 
     GLADloadfunc getProcAddress();
 

@@ -1,12 +1,13 @@
 #pragma once
 // System headers
 #include <inttypes.h>
-// #include <vector>
+#include <vector>
 // #include <map>
 // #include <string>
+
 // // External headers
 // #include <glm-0.9.8.0/vec2.hpp>
-// #include <glm-0.9.8.0/vec3.hpp>
+#include <glm/vec3.hpp>
 
 
 using int8   = int8_t;
@@ -18,6 +19,15 @@ using uint8  = unsigned char;
 using uint16 = uint16_t;
 using uint32 = uint32_t;
 using uint64 = uint64_t;
+
+using vec3f = std::vector<glm::vec3>;
+using vecf = std::vector<float>;
+
+using AssetID = uint16;
+#define INVALID_ASSET_ID 0xFFFF
+
+using GPID = uint16;
+#define INVALID_GP_ID 0xFFFF
 
 // using AssetId = uint32;
 // #define INVALID_ASSETID 0xFFFFFFFF

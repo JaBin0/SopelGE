@@ -8,16 +8,20 @@ namespace Sopel {
 class ISystemsManager;
 class IEntitiesManager;
 class IComponentsManager;
+class IRenderer;
 
 struct Utilities {
     /*! \brief */
-    ISystemsManager* const systemsMgr = nullptr;
+    ISystemsManager* systemsMgr = nullptr;
 
     /*! \brief */
-    IEntitiesManager* const entitiesMgr = nullptr;
+    IEntitiesManager* entitiesMgr = nullptr;
 
     /*! \brief */
-    IComponentsManager* const componentsMgr = nullptr;
+    IComponentsManager* componentsMgr = nullptr;
+
+    /*! \brief */
+    IRenderer* renderer = nullptr;
 };
 
 };

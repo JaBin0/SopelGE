@@ -13,6 +13,7 @@ find_package(OpenGL REQUIRED)
 # GLFW
 
 target_include_directories(SGEWindowOGL PUBLIC ${ROOT_DIR}/../Externals/glfw/3.3.8/include)
+target_include_directories(SGEWindowOGL PUBLIC ${ROOT_DIR}/../Externals/glm/0.9.8.0/include)
 target_include_directories(SGEWindowOGL PUBLIC ${ROOT_DIR}/engine)
 target_link_directories(SGEWindowOGL PUBLIC
         /f/Windows/_env/msys64/mingw64/bin/

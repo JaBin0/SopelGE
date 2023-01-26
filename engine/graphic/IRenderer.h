@@ -1,6 +1,11 @@
 #pragma once
 // System headers
 #include <string>
+
+#include <engine/common/BasicTypes.h>
+#include <engine/assets/Mesh.h>
+
+#include <glm/matrix.hpp>
 // Own headers
 // #include <engine/core/types.h>
 // #include <engine/core/Color.h>
@@ -11,10 +16,27 @@
 // #include <engine/core/SystemComponents.h>
 
 namespace Sopel {
+
+class Model;
+
 class IRenderer {
 public:
     /** Virtual Destructor */
     virtual ~IRenderer() = default;
+
+    /**! \brief Register new GMesh within the Graphic system based on the given mesh data and bind it with asset id */
+    virtual bool registerMesh(const AssetID assetId, const Mesh& mesh) = 0;
+
+    /**! \brief Read and register new Graphic pipeline within the graphic system based on the vertex shader and fragment shader*/
+    virtual bool registerGraphicPipeline(GPID id, std::string vertexShaderSrcFile, std::string fragmentShaderSrcFile) = 0;
+
+    /**! \brief */
+    virtual void setTime(const float time) = 0;
+
+    /**! \brief Draw specified object in the specified position using currently set graphic pipeline */
+    virtual void draw(const GPID gpid, const AssetID assetId, const glm::mat4 transform) = 0;
+
+   
 
     // /** Register model within Graphic system */
     // virtual ErrorCodes::value registerModel(AssetId id, const Model& model) = 0;

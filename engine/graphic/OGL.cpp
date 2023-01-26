@@ -1,11 +1,12 @@
 // // System headers
 // #include <iostream>
-// #include <fstream>
+#include <fstream>
 // // External
 // #include <ft2build.h>
-// #include FT_FREETYPE_H 
-// #include <glm-0.9.8.0/gtc/type_ptr.hpp>
-// #include <glm-0.9.8.0/gtc/matrix_transform.hpp>
+// #include FT_FREETYPE_H
+
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // // Own headers
 // #include <engine/core/types.h>
@@ -16,22 +17,152 @@
 
 namespace Sopel {
 
-OGL::OGL(GLADloadfunc procAddress) {
+OGL::OGL(GLADloadfunc procAddress) 
+    : _time {0.0f}
+{
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     
+
     int success = gladLoadGL(procAddress);
     if(!success) {
-        std::cout << "ERROR: OpenGL function poiters could not be retrive by GLAD" << std::endl;
+        std::cout << "ERROR: OpenGL function pointers could not be retrieve by GLAD" << std::endl;
         return;        
     }
+
+    _perspective = glm::perspective(glm::radians(45.0f), 1280.0f/720.0f, 0.1f, 100.0f);
+    _camera = glm::lookAt(glm::vec3(2.0f, 1.0f, 4.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0));
+
+    glViewport(0, 0, 1280.0f, 720.0f);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void OGL::startFrame(double time) {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+bool OGL::registerMesh(const AssetID assetId, const Mesh& mesh) { 
+    uint32 vao, vbo;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(float),  mesh.vertices.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    _meshes.insert({assetId, {vao, vbo, mesh.vertices.size() / 6}});
+
+    return true;
+}
+
+bool OGL::registerGraphicPipeline(GPID id, std::string vertexShaderFile, std::string fragmentShaderFile) {
+    std::cout << "Registering graphic pipeline [" << id << "]:" << std::endl
+              << "    <" << vertexShaderFile.data() <<", " << fragmentShaderFile.data() << "> ... ";
+    std::fstream vertexShader, fragmentShader;
+    vertexShader.open(vertexShaderFile, std::ios_base::in);
+    fragmentShader.open(fragmentShaderFile, std::ios_base::in);
+    if(!vertexShader.is_open() || !fragmentShader.is_open()) {
+        std::cout << "Failed" << std::endl
+                  << "        At least one of the shader source file could not be opened" << std::endl;
+        return false;
+    }
+
+    std::string content;
+    int success;
+    char infoLog[512];
+
+    // Create Vertex shader
+    std::getline(vertexShader, content, '\0');
+    const char* vertexShaderSource = content.data();
+    uint16 vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShaderId, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShaderId);
+    glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &success);
+    if(!success) {
+        glGetShaderInfoLog(vertexShaderId, 512, NULL, infoLog);
+        vertexShader.close();
+        fragmentShader.close();
+        glDeleteShader(vertexShaderId);
+        std::cout << "Failed" << std::endl
+                  << "    VERTEX::Info: " << infoLog << std::endl;
+        return false;
+    }
+
+    // Create Fragment Shader
+    content.clear();
+    std::getline(fragmentShader, content, '\0');
+    const char* fragmentShaderSource = content.data();
+    uint16 fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShaderId, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShaderId);
+    glGetShaderiv(fragmentShaderId, GL_COMPILE_STATUS, &success);
+    if(!success) {
+        glGetShaderInfoLog(fragmentShaderId, 512, NULL, infoLog);
+        vertexShader.close();
+        fragmentShader.close();
+        glDeleteShader(vertexShaderId);
+        glDeleteShader(fragmentShaderId);
+        std::cout << "Failed" << std::endl
+                  << "    FRAGMENT::Info: " << infoLog << std::endl;
+    }
+
+    // Create Graphic pipeline
+    uint16 graphicPipeline = glCreateProgram();
+    glAttachShader(graphicPipeline, vertexShaderId);
+    glAttachShader(graphicPipeline, fragmentShaderId);
+    glLinkProgram(graphicPipeline);
+
+    glGetProgramiv(graphicPipeline, GL_LINK_STATUS, &success);
+    if(!success) {
+        glGetProgramInfoLog(graphicPipeline, 512, NULL, infoLog);
+        vertexShader.close();
+        fragmentShader.close();
+        glDeleteShader(vertexShaderId);
+        glDeleteShader(fragmentShaderId);
+        glDeleteProgram(graphicPipeline);
+        std::cout << "Failed" << std::endl
+                  << "   PROGRAM::Info: " << infoLog << std::endl;
+        return false;
+    }
+
+    _pipelines.insert({id, {graphicPipeline, vertexShaderFile, fragmentShaderFile}});
+    std::cout << "Success" << std::endl;
+    return true;
+}
+
+void OGL::setTime(const float time) {
+    _time = time;
+}
+
+void OGL::draw(const GPID gpid, const AssetID assetId, const glm::mat4 transform) {
+    if( !_pipelines.count(gpid) || !_meshes.count(assetId)) {
+        std::cout << "ERROR:DRAW - no gpid <" << gpid <<"> or assetId <" << assetId << "> registered within renderer " << std::endl;
+        return; 
+    }
+    
+    GPipeline& pipeline = _pipelines.at(gpid);
+    glUseProgram(pipeline.id);
+
+    glUniform1f(glGetUniformLocation(pipeline.id, "time"), _time);
+
+    glUniformMatrix4fv(glGetUniformLocation(pipeline.id, "projection"), 1, GL_FALSE, glm::value_ptr(_perspective));
+    glUniformMatrix4fv(glGetUniformLocation(pipeline.id, "view"), 1, GL_FALSE, glm::value_ptr(_camera));
+    glUniformMatrix4fv(glGetUniformLocation(pipeline.id, "model"), 1, GL_FALSE, glm::value_ptr(transform));
+
+
+
+    const GMesh& mesh = _meshes.at(assetId);
+    glBindVertexArray(mesh.vao);
+    glDrawArrays(GL_TRIANGLES, 0, mesh.verticesNumber);
+}
+
 };
 // AssetId m_testId;
 
@@ -128,84 +259,7 @@ void OGL::startFrame(double time) {
 //     return ErrorCodes::_NO_ERROR;
 // }
 
-// ErrorCodes::value OGL::registerGraphicPipline(GPId id, std::string vertexShaderSrcFile, std::string fragmentShaderSrcFile) 
-// {
-//     std::cout << "Loading graphic pipline [" << id << "]: <" << vertexShaderSrcFile.data() <<", " << fragmentShaderSrcFile.data() << "> ... ";
-//     std::fstream vtShaderFile, fgShaderFile;
-//     vtShaderFile.open(vertexShaderSrcFile, std::ios_base::in);
-//     fgShaderFile.open(fragmentShaderSrcFile, std::ios_base::in);
-//     if(!vtShaderFile.is_open() || !fgShaderFile.is_open()) {
-//         std::cout << "Failed" << std::endl
-//                   << "   One of the shader source file could not be opened " << std::endl;
-//         return ErrorCodes::READING_SHADER_FILE_FAILED;
-//     }
-//     // Create Vertex Shader
-//     std::string vertexShaderSrcStr;
-//     std::getline(vtShaderFile, vertexShaderSrcStr, '\0');
-//     const char* vertexShaderSrc = vertexShaderSrcStr.data();
 
-//     uint16 vertexShader = glCreateShader(GL_VERTEX_SHADER); 
-//     glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
-//     glCompileShader(vertexShader);
-
-//     int success;
-//     char infoLog[512];
-//     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success); 
-//     if(!success) {
-//         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-//         vtShaderFile.close();
-//         fgShaderFile.close();
-//         glDeleteShader(vertexShader);
-//         std::cout << "Failed" << std::endl
-//                   << "   VERTEX::Info: " << infoLog << std::endl;
-//         return ErrorCodes::COMPILING_SHADER_FAILED; 
-//     }
-
-//     // Create Fragment Shader
-//     std::string fragmentShaderSrcStr;
-//     std::getline(fgShaderFile, fragmentShaderSrcStr, '\0');
-//     const char* fragmentShaderSrc = fragmentShaderSrcStr.data();
-
-//     uint16 fragmentShader = glCreateShader(GL_FRAGMENT_SHADER); 
-//     glShaderSource(fragmentShader, 1, &fragmentShaderSrc, NULL);
-//     glCompileShader(fragmentShader);
-
-//     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success); 
-//     if(!success) {
-//         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-//         vtShaderFile.close();
-//         fgShaderFile.close();
-//         glDeleteShader(vertexShader);
-//         glDeleteShader(fragmentShader);
-//         std::cout << "Failed" << std::endl
-//                   << "   FRAGMENT::Info: " << infoLog << std::endl;
-//         return ErrorCodes::COMPILING_SHADER_FAILED; 
-//     }
-
-//     // Create Graphic pipline
-//     uint32 graphicPipline = glCreateProgram();
-//     glAttachShader(graphicPipline, vertexShader);
-//     glAttachShader(graphicPipline, fragmentShader);
-//     glLinkProgram(graphicPipline);
-
-//     glGetProgramiv(graphicPipline, GL_LINK_STATUS, &success);
-//     if(!success) {
-//         glGetProgramInfoLog(graphicPipline, 512, NULL, infoLog);
-//         vtShaderFile.close();
-//         fgShaderFile.close();
-//         glDeleteShader(vertexShader);
-//         glDeleteShader(fragmentShader);
-//         glDeleteProgram(graphicPipline);
-//         std::cout << "Failed" << std::endl
-//                   << "   PROGRAM::Info: " << infoLog << std::endl;
-//         return ErrorCodes::LINKING_GRAHPICPIPLINE_FAILED; 
-//     }
-
-//     m_graphicPiplines[id] = graphicPipline;
-    
-//     std::cout << "Success" << std::endl;
-//     return ErrorCodes::_NO_ERROR;
-// }
 
 // ErrorCodes::value OGL::registerFont(FontId id, std::string fontFile) 
 // {
