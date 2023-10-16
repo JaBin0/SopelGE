@@ -36,7 +36,8 @@ public:
     /**! \brief Draw specified object in the specified position using currently set graphic pipeline */
     virtual void draw(const GPID gpid, const AssetID assetId, const glm::mat4 transform) = 0;
 
-   
+    /**! \brief Draw 2D point in the given coordinates */
+    virtual void draw2DPoint(uint16 x, uint16 y, uint16 size = 10u, uint32 color = 0xFFFFFFFF) = 0;
 
     // /** Register model within Graphic system */
     // virtual ErrorCodes::value registerModel(AssetId id, const Model& model) = 0;

@@ -51,7 +51,9 @@ T* IComponentsManager::addComponent(Entity& entity)
     
     auto& csm = _components.at(T::ID);
     if(csm.next >= csm.data.size()) {
+        std::cout << "Component " << T::ID << " storage is expanded" << std::endl;
         csm.data.resize(csm.data.size() + (DEFAULT_COMPONENT_STORAGE_SIZE));
+
         // for (auto& ent : _entities) {
         // //     if(ent.checkKey(1 << T::ID)) {
         // //         uint64 pos = ent.getComponentPos<T>();

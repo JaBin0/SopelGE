@@ -17,8 +17,10 @@
 
 namespace Sopel {
 
-OGL::OGL(GLADloadfunc procAddress) 
+OGL::OGL(GLADloadfunc procAddress, uint16 width, uint16 height) 
     : _time {0.0f}
+    , _width {static_cast<float>(width)}
+    , _height {static_cast<float>(height)}
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     
@@ -29,12 +31,35 @@ OGL::OGL(GLADloadfunc procAddress)
         return;        
     }
 
-    _perspective = glm::perspective(glm::radians(45.0f), 1280.0f/720.0f, 0.1f, 100.0f);
+    _ortho = glm::ortho(0.0f, _width, 0.0f, _height, -0.1f, 100.0f);
+    _perspective = glm::perspective(glm::radians(45.0f), _width/_height, 0.1f, 100.0f);
     _camera = glm::lookAt(glm::vec3(2.0f, 1.0f, 4.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0));
 
-    glViewport(0, 0, 1280.0f, 720.0f);
+    glViewport(0, 0, _width, _height);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_ALPHA_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    registerGraphicPipeline(SYSTEM_GRAPHIC_PIPELINES::POINT, "assets/shaders/point.vert", "assets/shaders/point.frag");
+    
+
+    // ===  Prepare line VAO ===
+    glGenVertexArrays(1, &_lineVAO);
+    glBindVertexArray(_lineVAO);
+    
+    glGenBuffers(1, &_lineVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, _lineVBO);
+
+    // //  2 for x,y and 4 for color
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * 2, NULL, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+    // glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
 }
 
 void OGL::startFrame(double time) {
@@ -156,11 +181,53 @@ void OGL::draw(const GPID gpid, const AssetID assetId, const glm::mat4 transform
     glUniformMatrix4fv(glGetUniformLocation(pipeline.id, "view"), 1, GL_FALSE, glm::value_ptr(_camera));
     glUniformMatrix4fv(glGetUniformLocation(pipeline.id, "model"), 1, GL_FALSE, glm::value_ptr(transform));
 
-
-
     const GMesh& mesh = _meshes.at(assetId);
     glBindVertexArray(mesh.vao);
     glDrawArrays(GL_TRIANGLES, 0, mesh.verticesNumber);
+}
+
+void OGL::draw2DPoint(uint16 x, uint16 y, uint16 size, uint32 color) {
+
+    const Sopel::GPipeline& gpid = _pipelines.at(SYSTEM_GRAPHIC_PIPELINES::POINT);
+    Sopel::GColor gColor(color);
+    // Convert origin of the y value to upper left corner
+    y = static_cast<uint16>(_height) - y;
+
+    glEnable(GL_BLEND);
+    glUseProgram(gpid.id);
+    glUniform1f(glGetUniformLocation(gpid.id, "size"), static_cast<float>(size) / 2.0f);
+    glUniform4f(glGetUniformLocation(gpid.id, "color"), gColor.r, gColor.g, gColor.b, gColor.a);
+    glUniform2f(glGetUniformLocation(gpid.id, "center"), static_cast<float>(x), static_cast<float>(y));
+    glUniformMatrix4fv(glGetUniformLocation(gpid.id, "projection"), 1, GL_FALSE, glm::value_ptr(_ortho));
+
+    glPointSize(static_cast<float>(size));
+     
+    glBindVertexArray(_lineVAO);
+    float data[] {static_cast<float>(x), static_cast<float>(y)};
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
+    glDrawArrays(GL_POINTS, 0, 1);
+
+    
+    //glBindBuffer(GL_ARRAY_BUFFER, _lineVBO);
+    // uint16 half_size = size / 2.0f;
+
+    // 
+    // 
+    // for (uint16 i = x - uint16(halfSize); i <= x + uint16(halfSize); i+=1u) {
+    //     for (uint16 j = y - uint16(halfSize); j <= y + uint16(halfSize); j+=1u) {
+    //         //float data[] {(float)i, (float)j, 0.0f, 0.2f, 0.9f, 1.0f};
+    //         
+            
+    //         
+    //         
+    //     }
+    // }
+    // //std::cout <<std::endl;
+    
+
+    glPointSize(1.0f);
+    glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 };

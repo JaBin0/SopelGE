@@ -20,7 +20,7 @@ class OGL : public IRenderer {
 public: 
     /** Constructor */
     OGL() = delete;
-    OGL(GLADloadfunc procAddress);
+    OGL(GLADloadfunc procAddress, uint16 width, uint16 height);
     
 //     ErrorCodes::value registerModel(AssetId id, const Model& model) override;
 
@@ -46,6 +46,8 @@ public:
 
     void draw(const GPID gpid, const AssetID assetId, const glm::mat4 transform) override;
 
+    void draw2DPoint(uint16 x, uint16 y, uint16 size = 10u, uint32 color = 0xFFFFFFFF) override;
+
 //     void draw() override;
 //     void draw(const GObject gobject) override;
 //     void drawTexture(const GObject gobject) override;
@@ -61,13 +63,32 @@ protected:
     glm::mat4 _perspective;
 
     /**! \brief */
+    glm::mat4 _ortho;
+
+    /**! \brief */
     glm::mat4 _camera;
 
     /**! \brief Time of the current frame */
     float _time;
 
+    /**! \brief Width of the renderer space */
+    float _width;
+
+    /**! \brief height of the renderer space */
+    float _height;
+
     /**! \brief */
     uint32 _cgp;
+
+    /**! \brief Build in vao used to draw lines and points*/
+    uint32 _lineVAO;
+
+    /**! \brief Build in vbo used to draw lines and points*/
+    uint32 _lineVBO;
+
+    uint32 _vao, _vbo;
+
+
 
 //     /** Maps of registred graphic piplines associated with the GPId's */
 //     std::unordered_map<GPId, uint16> m_graphicPiplines;

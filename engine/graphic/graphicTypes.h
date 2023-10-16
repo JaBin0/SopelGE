@@ -3,9 +3,10 @@
 #include <engine/common/BasicTypes.h>
 
 namespace Sopel {
-    enum SYSTEM_GRAPHIC_PIPLINES {
+    enum SYSTEM_GRAPHIC_PIPELINES {
         DEFAULT = 0,
         TEXT2D,
+        POINT,
         COUNT
     };
 
@@ -22,7 +23,20 @@ struct GPipeline {
     std::string fragmentShaderFile;
 };
 
+struct GColor {
+    GColor(uint32 color) {
+        r = static_cast<float>((color >> 24) & 0xFF) / 255.0f;
+        g = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
+        b = static_cast<float>((color >> 8)  & 0xFF) / 255.0f;
+        a = static_cast<float>((color)       & 0xFF) / 255.0f;
+    };
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
+    float a = 0.0f;
 };
+};
+
 
 // Struct to store data about single character
 // struct Character {

@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <limits>
 
 #include <engine/common/Types.h>
 
@@ -66,6 +67,9 @@ protected:
 
     /*! \brief Engine window handle*/
     std::unique_ptr<Sopel::Window> _window;
+
+    /*! \brief Limit number of frame per seconds, float used so for the debug reason it can be set to for example 0.25 fps*/
+    float _maxfps = std::numeric_limits<float>::min();
 
 private:
 
