@@ -40,6 +40,8 @@ public:
 
     bool registerMesh(const AssetID assetId, const Mesh& mesh) override;
 
+    bool registerTexture(AssetID assetId, uint32 width, uint32 height, std::vector<unsigned char> data, uint16 nrChanels) override;
+
     bool registerGraphicPipeline(GPID id, std::string vertexShaderFile, std::string fragmentShaderFile) override;
 
     void setTime(const float time) override;
@@ -47,6 +49,9 @@ public:
     void draw(const GPID gpid, const AssetID assetId, const glm::mat4 transform) override;
 
     void draw2DPoint(uint16 x, uint16 y, uint16 size = 10u, uint32 color = 0xFFFFFFFF) override;
+
+    /**! \brief Draw 2D image in the given coordinates */
+    void draw2DImage(uint16 x, uint16 y, uint16 width, uint16 height, AssetID texture) override;
 
 //     void draw() override;
 //     void draw(const GObject gobject) override;
@@ -86,7 +91,15 @@ protected:
     /**! \brief Build in vbo used to draw lines and points*/
     uint32 _lineVBO;
 
+    /**! \brief Build in vao used to draw rectangles*/
+    uint32 _rectangleVAO;
+
+     /**! \brief Build in vbo used to draw rectangles*/
+    uint32 _rectangleVBO;
+
     uint32 _vao, _vbo;
+
+    uint32 _textureId;
 
 
 

@@ -41,7 +41,8 @@ OGL::OGL(GLADloadfunc procAddress, uint16 width, uint16 height)
     glEnable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    registerGraphicPipeline(SYSTEM_GRAPHIC_PIPELINES::POINT, "assets/shaders/point.vert", "assets/shaders/point.frag");
+    registerGraphicPipeline(SYSTEM_GRAPHIC_PIPELINES::POINT_2D, "assets/shaders/point.vert", "assets/shaders/point.frag");
+    registerGraphicPipeline(SYSTEM_GRAPHIC_PIPELINES::RECTANGLE_2D, "assets/shaders/image2D.vert", "assets/shaders/image2D.frag");
     
 
     // ===  Prepare line VAO ===
@@ -55,11 +56,26 @@ OGL::OGL(GLADloadfunc procAddress, uint16 width, uint16 height)
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * 2, NULL, GL_DYNAMIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-    // glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
 
+    // ===  Prepare Rectangle VAO ===
+    glGenVertexArrays(1, &_rectangleVAO);
+    glBindVertexArray(_rectangleVAO);
+    
+    glGenBuffers(1, &_rectangleVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, _rectangleVBO);
+
+    // //  4 floats for x, y, tx and ty * 6 points
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * 6, NULL, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
+    
 }
 
 void OGL::startFrame(double time) {
@@ -83,6 +99,32 @@ bool OGL::registerMesh(const AssetID assetId, const Mesh& mesh) {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     _meshes.insert({assetId, {vao, vbo, mesh.vertices.size() / 6}});
+
+    return true;
+}
+
+bool OGL::registerTexture(AssetID assetId, uint32 width, uint32 height, std::vector<unsigned char> data, uint16 nrChanels) {
+    uint32 textureId;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    uint16 format = GL_RGBA;
+    if (nrChanels != 4) {
+        // TODO!
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data.data());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ 
+    _textureId = textureId;
+    glBindTexture(GL_TEXTURE_2D, 0);
+//     m_texturesMap.insert({id, oglTextureId});
+//     return ErrorCodes::_NO_ERROR;
+// }
 
     return true;
 }
@@ -188,7 +230,7 @@ void OGL::draw(const GPID gpid, const AssetID assetId, const glm::mat4 transform
 
 void OGL::draw2DPoint(uint16 x, uint16 y, uint16 size, uint32 color) {
 
-    const Sopel::GPipeline& gpid = _pipelines.at(SYSTEM_GRAPHIC_PIPELINES::POINT);
+    const Sopel::GPipeline& gpid = _pipelines.at(SYSTEM_GRAPHIC_PIPELINES::POINT_2D);
     Sopel::GColor gColor(color);
     // Convert origin of the y value to upper left corner
     y = static_cast<uint16>(_height) - y;
@@ -203,29 +245,46 @@ void OGL::draw2DPoint(uint16 x, uint16 y, uint16 size, uint32 color) {
     glPointSize(static_cast<float>(size));
      
     glBindVertexArray(_lineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, _lineVBO);
     float data[] {static_cast<float>(x), static_cast<float>(y)};
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
     glDrawArrays(GL_POINTS, 0, 1);
 
-    
-    //glBindBuffer(GL_ARRAY_BUFFER, _lineVBO);
-    // uint16 half_size = size / 2.0f;
-
-    // 
-    // 
-    // for (uint16 i = x - uint16(halfSize); i <= x + uint16(halfSize); i+=1u) {
-    //     for (uint16 j = y - uint16(halfSize); j <= y + uint16(halfSize); j+=1u) {
-    //         //float data[] {(float)i, (float)j, 0.0f, 0.2f, 0.9f, 1.0f};
-    //         
-            
-    //         
-    //         
-    //     }
-    // }
-    // //std::cout <<std::endl;
-    
-
     glPointSize(1.0f);
+    glBindVertexArray(0);
+    glUseProgram(0);
+}
+
+void OGL::draw2DImage(uint16 x, uint16 y, uint16 width, uint16 height, AssetID texture) {
+    const Sopel::GPipeline& gpid = _pipelines.at(SYSTEM_GRAPHIC_PIPELINES::RECTANGLE_2D);
+
+    // Convert origin of the y value to upper left corner
+    float recY = static_cast<float>(static_cast<uint16>(_height) - y);
+    float recX = static_cast<float>(x);
+    float data[] {
+        recX,         recY,          0.0, 1.0, 
+        recX,         recY - height, 0.0, 0.0, 
+        recX + width, recY - height, 1.0, 0.0,
+
+        recX + width, recY - height, 1.0, 0.0,
+        recX + width, recY,          1.0, 1.0,
+        recX,         recY,          0.0, 1.0, 
+    };
+
+    glEnable(GL_BLEND);
+    
+    glUseProgram(gpid.id);
+    glUniformMatrix4fv(glGetUniformLocation(gpid.id, "projection"), 1, GL_FALSE, glm::value_ptr(_ortho));
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _textureId);
+
+    glBindVertexArray(_rectangleVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, _rectangleVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
     glBindVertexArray(0);
     glUseProgram(0);
 }

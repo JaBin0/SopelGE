@@ -13,7 +13,7 @@ using namespace std::chrono_literals;
 
 namespace Sopel {
 
-std::string Engine::VERSION = "0.011";
+std::string Engine::VERSION = "0.012";
 
 Engine::Engine(uint16 width, uint16 height, std::string name)
     : IEntitiesManager ()
@@ -27,8 +27,6 @@ Engine::Engine(uint16 width, uint16 height, std::string name)
 void Engine::init()
 {
     registerSystem(ENGINE_SYSTEMS::RENDER_SYSTEM, sysRenderer, 10u, ((1<<CRender::ID) | (1<<CWorldTransform::ID)));
-    
-    _renderer->registerGraphicPipeline(1, "assets/shaders/point.vert", "assets/shaders/point.frag");
     gameInit();
 }
 
@@ -109,6 +107,21 @@ AssetID Engine::registerModel(const std::string filePath) {
 
     std::cout << "Success" << std::endl;
     return id;  
+}
+
+AssetID Engine::registerImage(const std::string imgPath) {
+    std::cout << "Registering image <" << imgPath.data() << "> ....";
+    auto [id, image] = loadImageAsset(imgPath);
+    if(id == INVALID_ASSET_ID) {
+        return INVALID_ASSET_ID;
+    }
+
+    if(!_renderer->registerTexture(id, image->width, image->height, image->data, image->nrChannels)) {
+        return INVALID_ASSET_ID;
+    }
+
+    std::cout << "Success" << std::endl;
+    return id;
 }
 
 std::string Engine::printVersion()

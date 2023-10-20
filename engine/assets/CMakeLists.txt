@@ -14,6 +14,7 @@ target_include_directories(SGEAssetsManager PUBLIC ${ROOT_DIR})
 target_include_directories(SGEAssetsManager PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(SGEAssetsManager PUBLIC ${ROOT_DIR}/../Externals/assimp/5.2.5/include)
 target_include_directories(SGEAssetsManager PUBLIC ${ROOT_DIR}/../Externals/glm/0.9.8.0/include)
+target_include_directories(SGEAssetsManager PUBLIC ${ROOT_DIR}/../Externals/includes)
 
 target_link_directories(SGEAssetsManager PUBLIC
         /f/Windows/_env/msys64/mingw64/bin/

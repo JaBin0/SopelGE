@@ -2,15 +2,18 @@
 #include <string>
 #include <unordered_map>
 #include <tuple>
+#include <memory>
 
 #include <engine/common/BasicTypes.h>
 #include <engine/assets/Model.h>
+#include <engine/assets/Image.h>
 
 
 namespace Sopel {
 
 enum class AssetType {
     Model = 1,
+    Image = 2,
 
 };
 
@@ -18,9 +21,12 @@ class IAssetsManager {
 protected:  
     std::tuple<AssetID, Model*> loadModelAsset(const std::string path);
 
+    std::tuple<AssetID, std::shared_ptr<Image>> loadImageAsset(const std::string path);
+
 private:
     std::unordered_map<AssetID, std::pair<std::string, AssetType>> _assets;
     std::unordered_map<AssetID, Model> _models;
+    std::unordered_map<AssetID, std::shared_ptr<Image>> _images;
 
 };
 };

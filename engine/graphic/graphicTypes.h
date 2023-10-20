@@ -6,7 +6,8 @@ namespace Sopel {
     enum SYSTEM_GRAPHIC_PIPELINES {
         DEFAULT = 0,
         TEXT2D,
-        POINT,
+        POINT_2D,
+        RECTANGLE_2D,
         COUNT
     };
 
@@ -34,6 +35,12 @@ struct GColor {
     float g = 0.0f;
     float b = 0.0f;
     float a = 0.0f;
+};
+
+struct GTextrue {
+    uint32 id;
+    uint32 width;
+    uint32 height;
 };
 };
 

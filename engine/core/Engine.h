@@ -48,6 +48,8 @@ public:
 
     AssetID registerModel(const std::string filePath);
 
+    AssetID registerImage(const std::string imgPath);
+
     /**! \brief */
     void registerGraphicPipeline(const GPID id, const std::string vertexShader, const std::string fragmentShader);
 

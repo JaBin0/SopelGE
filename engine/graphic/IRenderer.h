@@ -30,6 +30,9 @@ public:
     /**! \brief Read and register new Graphic pipeline within the graphic system based on the vertex shader and fragment shader*/
     virtual bool registerGraphicPipeline(GPID id, std::string vertexShaderSrcFile, std::string fragmentShaderSrcFile) = 0;
 
+    /**! \brief Register new texture within Graphic system based on the given data nad asset id */
+    virtual bool registerTexture(AssetID assetId, uint32 width, uint32 height, std::vector<unsigned char> data, uint16 nrChanels) = 0;
+
     /**! \brief */
     virtual void setTime(const float time) = 0;
 
@@ -38,6 +41,9 @@ public:
 
     /**! \brief Draw 2D point in the given coordinates */
     virtual void draw2DPoint(uint16 x, uint16 y, uint16 size = 10u, uint32 color = 0xFFFFFFFF) = 0;
+
+    /**! \brief Draw 2D image in the given coordinates */
+    virtual void draw2DImage(uint16 x, uint16 y, uint16 width, uint16 height, AssetID texture) = 0;
 
     // /** Register model within Graphic system */
     // virtual ErrorCodes::value registerModel(AssetId id, const Model& model) = 0;
