@@ -4,6 +4,7 @@ project(SGEWindowPrj
         DESCRIPTION "Window with context for graphic interface"
         LANGUAGES CXX)
 
+# ======================== ======================== ======================== ========================
 add_library(SGEWindowOGL STATIC
         WindowOGL.cpp
 )
@@ -22,6 +23,25 @@ target_link_directories(SGEWindowOGL PUBLIC
 target_link_libraries(SGEWindowOGL LINK_PUBLIC opengl32 glfw3)
 
 target_include_directories(SGEWindowOGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+# ======================== ======================== ======================== ========================
+add_library(SGEWindow STATIC
+        Window.cpp
+)
+
+target_compile_features(SGEWindow PUBLIC cxx_std_20)
+
+target_link_libraries(SGEWindow LINK_PUBLIC glfw3)
+
+target_include_directories(SGEWindow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(SGEWindow PUBLIC ${ROOT_DIR}/../Externals/glfw/3.3.8/include)
+
+target_link_directories(SGEWindow PUBLIC
+        ${ROOT_DIR}/../Externals/glfw/3.3.8/x64                
+)
+
+
+
 
 #target_compile_features(Sopel PRIVATE cxx_std_20 )
 #add_library(Sopel STATIC 

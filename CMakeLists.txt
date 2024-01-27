@@ -21,6 +21,7 @@ add_subdirectory(engine/assets)
 add_subdirectory(engine/graphic)
 add_subdirectory(engine/window)
 add_subdirectory(engine/core)
+add_subdirectory(engine/config)
 add_subdirectory(tools/level_editor)
 
 
